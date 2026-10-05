@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mendoza Reporta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#080b0f;--panel:#10151b;--line:#242d36;--text:#edf3f6;--muted:#8d9aa6;--green:#7dd3a7;--gold:#d8b56b;--red:#f16c72;--blue:#65aef5}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.auth{min-height:100vh;display:grid;grid-template-columns:1.15fr .85fr;background:#070a0d}.auth-photo{position:relative;overflow:hidden;background:linear-gradient(90deg,#06080ddd,#06080d22),url("https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1800&q=85") center/cover}.auth-copy{position:absolute;left:8%;top:9%;max-width:620px}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}.auth-copy h1{font:800 clamp(38px,5vw,70px) Manrope;line-height:.98;margin:15px 0}.auth-copy p{color:#d1d9de;max-width:530px;font-size:17px;line-height:1.6}.auth-card{display:flex;align-items:center;justify-content:center;padding:32px}.box{width:min(430px,100%);background:#0e1318;border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:0 25px 80px #0008}.logo{font:800 21px Manrope}.logo i{color:var(--green);font-style:normal}.box h2{font:700 29px Manrope;margin:30px 0 7px}.muted{color:var(--muted)}label{display:block;font-size:12px;font-weight:700;color:#b8c2ca;margin:18px 0 7px}input,select,textarea{width:100%;background:#0a0e12;border:1px solid #2a343e;color:var(--text);border-radius:11px;padding:12px 13px;outline:none}textarea{min-height:100px;resize:vertical}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800}.primary{background:var(--green);color:#07100b}.ghost{background:#151c23;color:#dce5ea;border:1px solid var(--line)}
+.hidden{display:none!important}.app{display:none;min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:255px;background:#0a0e12;border-right:1px solid var(--line);padding:25px 16px;z-index:20}.brand{padding:0 12px 30px;font:800 20px Manrope}.brand i{color:var(--green);font-style:normal}.brand small{display:block;color:#66737d;font:500 10px "DM Sans";letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}.nav{display:grid;gap:5px}.nav button{background:transparent;color:#87949f;text-align:left;border-radius:10px;padding:12px 13px;border:1px solid transparent}.nav button:hover,.nav button.active{background:#151c22;color:#fff;border-color:#202a32}.nav button span{margin-right:10px}.main{margin-left:255px}.topbar{height:76px;border-bottom:1px solid var(--line);background:#090d11dd;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:15}.crumb{font:700 18px Manrope}.profile{display:flex;gap:10px;align-items:center}.avatar{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:#1c352b;color:var(--green);font-weight:800}.content{padding:30px;max-width:1500px;margin:auto}
+
+/* Fondo con la imagen nocturna del cartel de Mendoza */
+.hero{min-height:260px;border:1px solid var(--line);border-radius:24px;padding:34px;display:flex;align-items:end;background:linear-gradient(90deg, rgba(7,16,12,0.85), rgba(7,16,12,0.3)), url("https://www.mendozaturismo.com.ar/img/sitio-mendozaturismo.jpg") center/cover}.hero h1{font:800 clamp(30px,4vw,54px) Manrope;margin:8px 0}.hero p{color:#d1d8dc;max-width:650px;line-height:1.6}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:20px}.stat b{font:800 30px Manrope}.stat small{display:block;color:var(--muted);margin-top:5px}.section{margin-top:25px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-head h2{font:700 21px Manrope;margin:0}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}.report{padding:16px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}.report:last-child{border:0}.report-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;width:100%}.badge{display:inline-block;padding:5px 8px;border-radius:99px;font-size:11px;font-weight:800;margin-left:7px}.pending{background:#32181b;color:#ff9ca0}.derived{background:#14283b;color:#7fbfff}.repair{background:#302a18;color:#e9c46e}.resolved{background:#153024;color:#75dda8}.map{height:540px;border-radius:14px;overflow:hidden;background:#111}.map-small{height:430px;border-radius:14px;overflow:hidden}.empty{text-align:center;padding:40px;color:var(--muted)}
+
+.solution-box{background:#0b130e;border:1px solid #1a3a2a;border-radius:12px;padding:14px;margin-top:10px}
+.solution-box h4{margin:0 0 8px;color:var(--green);font-size:14px;display:flex;align-items:center;gap:6px}
+.solution-img{max-width:200px;border-radius:8px;margin-top:8px;border:1px solid #234835;display:block}
+
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:16px 0 25px}
+.category-card{background:#131a22;border:1px solid #232d38;border-radius:20px;padding:22px 12px;text-align:center;cursor:pointer;transition:all .25s ease;display:flex;flex-direction:column;align-items:center;gap:12px}
+.category-card:hover{transform:translateY(-4px);border-color:var(--green);box-shadow:0 12px 30px #0008;background:#18222d}
+.category-icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#24303f,#10161d);box-shadow:inset 0 2px 2px #ffffff25,0 8px 18px #00000080;position:relative;border:1px solid #324050}
+.category-card span{font-size:14px;font-weight:700;color:#e3ecf2;line-height:1.2}
+
+.phone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.phone-card{background:#0b0f14;border:1px solid #1f2832;border-radius:12px;padding:12px 16px}
+.phone-card b{display:block;color:#edf3f6;font-size:14px;margin-bottom:3px}
+.phone-card a{color:var(--green);font-weight:700;text-decoration:none;font-size:15px}
+.phone-card a:hover{text-decoration:underline}
+
+@media(max-width:900px){.sidebar{width:70px;padding:18px 10px}.brand{font-size:0;padding:0 10px 25px}.brand:before{content:"MR";font:800 18px Manrope;color:var(--green)}.brand small,.nav button b{display:none}.nav button{text-align:center;font-size:19px}.main{margin-left:70px}.topbar{padding:0 15px}.content{padding:16px}.stats{grid-template-columns:1fr 1fr}.two,.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media(max-width:650px){.auth{grid-template-columns:1fr}.auth-photo{display:none}.auth-card{padding:18px}.hero{min-height:360px;padding:23px}.topbar{height:65px}.profile .name{display:none}}
+</style>
+</head>
+<body>
+<div id="auth" class="auth">
+ <div class="auth-photo"><div class="auth-copy"><div class="eyebrow">Ciudad + comunidad</div><h1>Mendoza<br>Reporta</h1><p>Una forma más clara, moderna y precisa de informar problemas urbanos y seguir su solución.</p></div></div>
+ <div class="auth-card"><div class="box"><div class="logo">Mendoza <i>Reporta</i></div><h2>Bienvenido</h2><p class="muted">Ingresá para gestionar tus reportes.</p>
+ <label>Correo electrónico</label><input id="email" type="email" placeholder="tu@email.com"><label>Contraseña</label><input id="password" type="password" placeholder="••••••••">
+ <button class="btn primary" style="width:100%;margin-top:20px" onclick="login()">Iniciar sesión</button>
+ <p class="muted" style="text-align:center;font-size:13px">Demo: cualquier correo funciona. Para modo administrador usá un correo que contenga la palabra <b>admin</b> (ej: admin@mendoza.gob.ar).</p>
+ </div></div>
+</div>
+<div id="app" class="app">
+<aside class="sidebar"><div class="brand">Mendoza <i>Reporta</i><small>Gestión urbana</small></div>
+<nav class="nav"><button data-v="home" onclick="show('home')"><span>⌂</span><b>Inicio</b></button><button data-v="new" onclick="show('new')"><span>＋</span><b>Nuevo reporte</b></button><button data-v="mine" onclick="show('mine')"><span>▤</span><b>Mis reportes</b></button><button data-v="map" onclick="show('map')"><span>⌖</span><b>Mapa de fallas</b></button><button id="adminBtn" data-v="admin" onclick="show('admin')"><span>◆</span><b>Administración</b></button></nav>
+</aside>
+<div class="main"><header class="topbar"><div class="crumb" id="crumb">Inicio</div><div class="profile"><span class="name" id="uname"></span><div class="avatar" id="avatar">M</div><button class="btn ghost" onclick="logout()">Salir</button></div></header>
+<main class="content">
+<section id="home" class="view">
+<div class="hero"><div><div class="eyebrow">Mendoza · Espacio público</div><h1>Reportá. Ubicá. Seguí.</h1><p>Indicá exactamente dónde está la falla, agregá información útil y consultá qué está pasando con tu solicitud.</p><button class="btn primary" onclick="show('new')">Crear reporte</button></div></div>
+
+<div class="section">
+  <div class="section-head"><h2>¿Qué tipo de problema querés reportar?</h2></div>
+  <div class="category-grid">
+    <div class="category-card" onclick="selectAndNew('Bache o calle deteriorada')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#d8b56b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19L12 4l8 15H4z"/><path d="M8 14h8"/></svg>
+      </div>
+      <span>Baches y calles</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Alumbrado público')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f2ca65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 7a5 5 0 0 1 5 5c0 2.5-1.5 4.5-3 5H10c-1.5-.5-3-2.5-3-5a5 5 0 0 1 5-5z"/></svg>
+      </div>
+      <span>Alumbrado público</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Semáforo averiado')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f16c72" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="4"/><circle cx="12" cy="6" r="2" fill="#f16c72"/><circle cx="12" cy="12" r="2" fill="#d8b56b"/><circle cx="12" cy="18" r="2" fill="#7dd3a7"/></svg>
+      </div>
+      <span>Semáforos</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Basura o residuos')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8d9aa6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </div>
+      <span>Basura y residuos</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Árbol caído')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#7dd3a7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19v3"/><path d="M12 19a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/><path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+      </div>
+      <span>Árboles</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Pérdida de agua')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#65aef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      </div>
+      <span>Agua y cloacas</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Vereda dañada')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#b8c2ca" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+      </div>
+      <span>Veredas</span>
+    </div>
+    <div class="category-card" onclick="selectAndNew('Otro problema urbano')">
+      <div class="category-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8d9aa6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>
+      </div>
+      <span>Otros</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats"><div class="stat"><b id="total">0</b><small>Reportes</small></div><div class="stat"><b id="pending">0</b><small>Pendientes</small></div><div class="stat"><b id="repair">0</b><small>En reparación</small></div><div class="stat"><b id="resolved">0</b><small>Resueltos</small></div></div>
+<div class="section"><div class="section-head"><h2>Actividad reciente</h2><button class="btn ghost" onclick="show('mine')">Ver todos</button></div><div class="card" id="latest"></div></div>
+
+<div class="section">
+  <div class="section-head"><h2>Teléfonos de emergencias y servicios</h2></div>
+  <div class="card">
+    <p class="muted" style="margin-top:0">Si tu reclamo requiere atención urgente o no recibiste respuesta, podés comunicarte directamente con la central o la municipalidad correspondiente:</p>
+    <b style="color:var(--gold);display:block;margin:10px 0 6px;text-transform:uppercase;font-size:12px;letter-spacing:1px">Servicios Generales de Urgencia</b>
+    <div class="phone-grid">
+      <div class="phone-card"><b>Emergencias / Policía</b><a href="tel:911">911</a></div>
+      <div class="phone-card"><b>Ambulancia / SEC</b><a href="tel:107">107</a></div>
+      <div class="phone-card"><b>Bomberos Mendoza</b><a href="tel:100">100</a></div>
+      <div class="phone-card"><b>Defensa Civil Mendoza</b><a href="tel:103">103 / 0800 222 0103</a></div>
+      <div class="phone-card"><b>AYSAM (Agua y Cloacas)</b><a href="tel:08004449900">0800 444 9900</a></div>
+      <div class="phone-card"><b>Edemsa (Luz)</b><a href="tel:08003333672">0800 333 3672</a></div>
+    </div>
+
+    <b style="color:var(--green);display:block;margin:20px 0 6px;text-transform:uppercase;font-size:12px;letter-spacing:1px">Municipalidades por Departamento</b>
+    <div class="phone-grid">
+      <div class="phone-card"><b>Ciudad de Mendoza (Capital)</b><a href="tel:147">147 / 0800 222 2483</a></div>
+      <div class="phone-card"><b>Godoy Cruz</b><a href="tel:08008006864">0800 800 6864</a></div>
+      <div class="phone-card"><b>Guaymallén</b><a href="tel:2614497700">261 449-7700</a></div>
+      <div class="phone-card"><b>Las Heras</b><a href="tel:08002227700">0800 222 7700</a></div>
+      <div class="phone-card"><b>Maipú</b><a href="tel:08002228030">0800 222 8030</a></div>
+      <div class="phone-card"><b>Luján de Cuyo</b><a href="tel:147">147 / 0800 222 5852</a></div>
+      <div class="phone-card"><b>San Martín</b><a href="tel:08002220199">0800 222 0199</a></div>
+      <div class="phone-card"><b>Junín</b><a href="tel:02634492050">0263 449-2050</a></div>
+      <div class="phone-card"><b>Rivadavia</b><a href="tel:02634442220">0263 444-2220</a></div>
+      <div class="phone-card"><b>Lavalle</b><a href="tel:02614941100">0261 494-1100</a></div>
+      <div class="phone-card"><b>Tupungato</b><a href="tel:02622488800">02622 48-8800</a></div>
+      <div class="phone-card"><b>Tunuyán</b><a href="tel:02622422134">02622 42-2134</a></div>
+      <div class="phone-card"><b>San Carlos</b><a href="tel:02622451002">02622 45-1002</a></div>
+      <div class="phone-card"><b>San Rafael</b><a href="tel:08002220600">0800 222 0600</a></div>
+      <div class="phone-card"><b>General Alvear</b><a href="tel:02625422900">02625 42-2900</a></div>
+      <div class="phone-card"><b>Malargüe</b><a href="tel:02604471060">0260 447-1060</a></div>
+      <div class="phone-card"><b>Santa Rosa</b><a href="tel:02634497200">0263 449-7200</a></div>
+      <div class="phone-card"><b>La Paz</b><a href="tel:02626421100">02626 42-1100</a></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="new" class="view hidden"><div class="section-head"><h2>Nuevo reporte</h2></div><div class="two"><div class="card"><div class="formgrid">
+<div><label>Tipo de problema</label><select id="type"><option>Bache o calle deteriorada</option><option>Alumbrado público</option><option>Semáforo averiado</option><option>Basura o residuos</option><option>Vereda dañada</option><option>Árbol caído</option><option>Rama sobre cables eléctricos</option><option>Pérdida de agua</option><option>Problema de cañerías de agua</option><option>Problema de cloacas</option><option>Pérdida de líquidos cloacales</option><option>Otro problema urbano</option></select></div>
+<div><label>Prioridad</label><select id="priority"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
+<div class="full"><label>Dirección / referencia</label><input id="address" placeholder="Calle, número, esquina o referencia"></div>
+<div class="full"><label>Descripción</label><textarea id="description" placeholder="Explicá qué sucede y cómo puede encontrarse la falla."></textarea></div>
+<div class="full"><label>Fotografía</label><input id="photo" type="file" accept="image/*"></div>
+<div class="full"><button class="btn primary" onclick="createReport()">Enviar reporte</button></div></div></div>
+<div class="card"><div class="section-head"><h2>Ubicación exacta</h2><button class="btn ghost" onclick="locate()">Mi ubicación</button></div><p class="muted">Tocá el mapa para colocar el punto exacto.</p><div id="newMap" class="map-small"></div><p class="muted" id="coords">Sin ubicación seleccionada.</p></div></div></section>
+
+<section id="mine" class="view hidden"><div class="section-head"><h2>Mis reportes</h2><button class="btn primary" onclick="show('new')">＋ Nuevo</button></div><div class="card" id="mineList"></div></section>
+<section id="map" class="view hidden"><div class="section-head"><h2>Mapa de fallas</h2></div><div class="card"><div id="allMap" class="map"></div></div></section>
+
+<section id="admin" class="view hidden">
+  <div class="section-head"><h2>Administración de Reportes Urbanos</h2></div>
+  <div class="card">
+    <p class="muted">Como administrador podés cambiar el estado de cada reporte. Si marcas una falla como <b>Resuelto</b>, vas a poder adjuntar una foto de la solución e indicar detalles técnicos.</p>
+    <div id="adminList"></div>
+  </div>
+</section>
+</main></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const KEY="mr_premium_data";let reports=JSON.parse(localStorage.getItem(KEY)||"[]"),user=null,newMap=null,allMap=null,newMarker=null,chosen=null,markers=[];
+const MENDOZA=[-32.8895,-68.8458];
+
+function save(){localStorage.setItem(KEY,JSON.stringify(reports))}
+function login(){let e=document.getElementById("email").value.trim();if(!e)return alert("Ingresá tu correo");user={email:e,name:e.split("@")[0],admin:e.toLowerCase().includes("admin")};localStorage.setItem("mr_premium_user",JSON.stringify(user));start()}
+function start(){document.getElementById("auth").style.display="none";document.getElementById("app").style.display="block";document.getElementById("uname").textContent=user.name;document.getElementById("avatar").textContent=user.name[0].toUpperCase();document.getElementById("adminBtn").style.display=user.admin?"block":"none";show("home")}
+function logout(){localStorage.removeItem("mr_premium_user");location.reload()}
+
+function resetForm() {
+  document.getElementById("type").selectedIndex = 0;
+  document.getElementById("priority").selectedIndex = 0;
+  document.getElementById("address").value = "";
+  document.getElementById("description").value = "";
+  document.getElementById("photo").value = "";
+  chosen = null;
+  document.getElementById("coords").textContent = "Sin ubicación seleccionada.";
+  if (newMarker && newMap) {
+    newMap.removeLayer(newMarker);
+    newMarker = null;
+  }
+}
+
+function show(id){
+  document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.getElementById("crumb").textContent={home:"Inicio",new:"Nuevo reporte",mine:"Mis reportes",map:"Mapa de fallas",admin:"Administración"}[id];
+  document.querySelectorAll("[data-v]").forEach(x=>x.classList.toggle("active",x.dataset.v===id));
+  if(id==="new")initNew();
+  if(id==="map")initAll();
+  if(id==="mine")renderMine();
+  if(id==="admin")renderAdmin();
+  stats();
+}
+
+function selectAndNew(type){
+  resetForm();
+  show('new');
+  const select=document.getElementById('type');
+  if(select) select.value = type;
+}
+
+function tileLayer(map){
+  return L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    attribution: '© Google Maps',
+    maxZoom: 20
+  }).addTo(map);
+}
+
+function initNew(){
+  if(newMap){
+    setTimeout(()=>newMap.invalidateSize(),100);
+    return;
+  }
+  newMap=L.map("newMap").setView(MENDOZA,14);
+  tileLayer(newMap);
+  newMap.on("click",e=>setPoint(e.latlng.lat,e.latlng.lng));
+}
+
+function setPoint(lat,lng){
+  chosen={lat,lng};
+  if(newMarker) newMarker.setLatLng([lat,lng]);
+  else newMarker=L.marker([lat,lng]).addTo(newMap);
+  document.getElementById("coords").textContent=`Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+}
+
+function locate(){
+  navigator.geolocation?.getCurrentPosition(p=>{
+    newMap.setView([p.coords.latitude,p.coords.longitude],17);
+    setPoint(p.coords.latitude,p.coords.longitude);
+  },()=>alert("No se pudo obtener tu ubicación."));
+}
+
+function createReport(){
+  let d=document.getElementById("description").value.trim(),a=document.getElementById("address").value.trim();
+  if(!d||!a||!chosen) return alert("Completá dirección, descripción y marcá el punto en el mapa.");
+  
+  let newRep = {
+    id: "MR-" + Date.now().toString().slice(-7),
+    user: user.email,
+    type: document.getElementById("type").value,
+    priority: document.getElementById("priority").value,
+    address: a,
+    description: d,
+    lat: chosen.lat,
+    lng: chosen.lng,
+    status: "Pendiente",
+    date: new Date().toLocaleString("es-AR"),
+    solutionNote: "",
+    solutionPhoto: ""
+  };
+  
+  reports.unshift(newRep);
+  save();
+  alert("Reporte guardado con éxito.");
+  resetForm();
+  show("map");
+}
+
+function badge(s){
+  return `<span class="badge ${s==="Pendiente"?"pending":s==="Derivado"?"derived":s==="En reparación"?"repair":"resolved"}">${s}</span>`;
+}
+
+function row(r,admin=false){
+  let solutionHTML = "";
+  if(r.status === "Resuelto" && (r.solutionNote || r.solutionPhoto)){
+    solutionHTML = `
+      <div class="solution-box">
+        <h4>✓ Falla Solucionada</h4>
+        ${r.solutionNote ? `<div><b>Comentario del administrador:</b> ${r.solutionNote}</div>` : ''}
+        ${r.solutionPhoto ? `<img src="${r.solutionPhoto}" class="solution-img" alt="Solución">` : ''}
+      </div>
+    `;
+  }
+
+  return `<div class="report">
+    <div class="report-head">
+      <div>
+        <b>${r.type}</b>${badge(r.status)}
+        <div class="muted">${r.id} · ${r.address}</div>
+        <div>${r.description}</div>
+        <small class="muted">${r.date} · Prioridad ${r.priority} · Por: ${r.user}</small>
+      </div>
+      ${admin ? `
+        <div>
+          <label style="margin:0 0 4px;font-size:11px">Estado actual:</label>
+          <select style="width:auto;padding:8px" onchange="handleAdminStatusChange('${r.id}', this.value)">
+            <option ${r.status==='Pendiente'?'selected':''}>Pendiente</option>
+            <option ${r.status==='Derivado'?'selected':''}>Derivado</option>
+            <option ${r.status==='En reparación'?'selected':''}>En reparación</option>
+            <option ${r.status==='Resuelto'?'selected':''}>Resuelto</option>
+          </select>
+        </div>
+      ` : ''}
+    </div>
+
+    ${admin && r.status === "Resuelto" ? `
+      <div class="solution-box">
+        <h4 style="margin-bottom:10px">🛠 Registro de Solución (Administrador)</h4>
+        <label style="margin-top:0">Comentario o reporte técnico de la reparación:</label>
+        <textarea id="sol_note_${r.id}" placeholder="Detallá los trabajos realizados para solucionar la falla...">${r.solutionNote || ''}</textarea>
+        <label>Comprobante fotográfico (opcional):</label>
+        <input type="file" id="sol_file_${r.id}" accept="image/*">
+        <button class="btn primary" style="margin-top:10px;padding:8px 14px;font-size:13px" onclick="saveAdminSolution('${r.id}')">Guardar detalles de resolución</button>
+      </div>
+    ` : ''}
+
+    ${solutionHTML}
+  </div>`;
+}
+
+function handleAdminStatusChange(id, newStatus){
+  let r = reports.find(x => x.id === id);
+  if(r){
+    r.status = newStatus.trim();
+    save();
+    renderAdmin();
+    stats();
+    if(allMap) renderMarkers();
+  }
+}
+
+function saveAdminSolution(id){
+  let r = reports.find(x => x.id === id);
+  if(!r) return;
+  
+  let noteInput = document.getElementById(`sol_note_${id}`);
+  let fileInput = document.getElementById(`sol_file_${id}`);
+  
+  if(noteInput) r.solutionNote = noteInput.value.trim();
+  
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    let reader = new FileReader();
+    reader.onload = function(e){
+      r.solutionPhoto = e.target.result;
+      save();
+      alert("Detalles de resolución guardados correctamente.");
+      renderAdmin();
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    save();
+    alert("Detalles de resolución guardados correctamente.");
+    renderAdmin();
+  }
+}
+
+function renderMine(){
+  let a=reports.filter(r=>r.user===user.email);
+  document.getElementById("mineList").innerHTML=a.length?a.map(r=>row(r)).join(""):`<div class="empty">Todavía no tenés reportes creados.</div>`;
+}
+
+function renderAdmin(){
+  document.getElementById("adminList").innerHTML=reports.length?reports.map(r=>row(r,true)).join(""):`<div class="empty">No hay reportes registrados.</div>`;
+}
+
+function initAll(){
+  if(allMap){
+    allMap.invalidateSize();
+    renderMarkers();
+    return;
+  }
+  allMap=L.map("allMap").setView(MENDOZA,13);
+  tileLayer(allMap);
+  renderMarkers();
+  setTimeout(()=>allMap.invalidateSize(),100);
+}
+
+function renderMarkers(){
+  if(!allMap) return;
+  markers.forEach(m=>allMap.removeLayer(m));
+  markers=[];
+  reports.forEach(r=>{
+    let solText = r.status === "Resuelto" && r.solutionNote ? `<br><b style="color:#7dd3a7">Solución:</b> ${r.solutionNote}` : '';
+    let m=L.marker([r.lat,r.lng]).addTo(allMap).bindPopup(`
+      <div style="font-family:sans-serif">
+        <b style="font-size:14px">${r.type}</b> ${badge(r.status)}<br>
+        <small style="color:#666">${r.address}</small><br><br>
+        <span>${r.description}</span>
+        ${solText}
+        <br><small style="color:#888;display:block;margin-top:5px">Reportado por: ${r.user}</small>
+      </div>
+    `);
+    markers.push(m);
+  });
+}
+
+function stats(){
+  document.getElementById("total").textContent=reports.length;
+  document.getElementById("pending").textContent=reports.filter(r=>r.status==="Pendiente").length;
+  document.getElementById("repair").textContent=reports.filter(r=>r.status==="En reparación").length;
+  document.getElementById("resolved").textContent=reports.filter(r=>r.status==="Resuelto").length;
+  document.getElementById("latest").innerHTML=reports.slice(0,5).map(r=>row(r)).join("")||`<div class="empty">Todavía no hay reportes.</div>`;
+}
+
+let saved=localStorage.getItem("mr_premium_user");
+if(saved){
+  user=JSON.parse(saved);
+  start();
+}
+</script></body></html>
